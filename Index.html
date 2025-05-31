@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awesome To-Do List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .task-item.completed {
+            background-color: #d1fae5; /* Light green for completed tasks */
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        .task-text {
+            flex-grow: 1;
+            cursor: pointer;
+            word-break: break-word; /* Ensure long text wraps */
+        }
+        .task-actions button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .task-actions .delete-btn {
+            background-color: #ef4444; /* Red */
+            color: white;
+            border: none;
+        }
+        .task-actions .delete-btn:hover {
+            background-color: #dc2626;
+            transform: scale(1.05);
+        }
+        .add-task-btn {
+            background-color: #2563eb; /* Blue */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .add-task-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        input[type="text"] {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 12px 15px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">My To-Do List</h1>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Add a new task..."
+                class="flex-grow"
+            >
+            <button id="addTaskBtn" class="add-task-btn">Add Task</button>
+        </div>
+
+        <ul id="taskList" class="space-y-3">
+            </ul>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const taskInput = document.getElementById('taskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskList = document.getElementById('taskList');
+
+        // Function to add a new task
+        function addTask() {
+            const taskText = taskInput.value.trim(); // Get task text and remove leading/trailing whitespace
+
+            // If the input is empty, do nothing
+            if (taskText === '') {
+                return;
+            }
+
+            // Create a new list item (li) for the task
+            const listItem = document.createElement('li');
+            listItem.classList.add('task-item'); // Add base styling class
+
+            // Create a span for the task text
+            const taskSpan = document.createElement('span');
+            taskSpan.classList.add('task-text');
+            taskSpan.textContent = taskText;
+            // Add click listener to toggle completion status
+            taskSpan.addEventListener('click', () => {
+                listItem.classList.toggle('completed'); // Toggle 'completed' class
+            });
+
+            // Create a div for action buttons (delete)
+            const taskActions = document.createElement('div');
+            taskActions.classList.add('task-actions');
+
+            // Create the delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.textContent = 'Delete';
+            // Add click listener to delete the task
+            deleteBtn.addEventListener('click', () => {
+                listItem.remove(); // Remove the entire list item
+            });
+
+            // Append the task text and delete button to the list item
+            taskActions.appendChild(deleteBtn);
+            listItem.appendChild(taskSpan);
+            listItem.appendChild(taskActions);
+
+            // Append the new task item to the task list
+            taskList.appendChild(listItem);
+
+            // Clear the input field after adding the task
+            taskInput.value = '';
+        }
+
+        // Event listener for the "Add Task" button click
+        addTaskBtn.addEventListener('click', addTask);
+
+        // Event listener for pressing "Enter" key in the input field
+        taskInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Optional: Load tasks from local storage on page load (for persistence)
+        // This feature is commented out as it wasn't explicitly requested,
+        // but it's a common enhancement for to-do apps.
+        /*
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(task => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('task-item');
+                if (task.completed) {
+                    listItem.classList.add('completed');
+                }
+
+                const taskSpan = document.createElement('span');
+                taskSpan.classList.add('task-text');
+                taskSpan.textContent = task.text;
+                taskSpan.addEventListener('click', () => {
+                    listItem.classList.toggle('completed');
+                    saveTasks();
+                });
+
+                const taskActions = document.createElement('div');
+                taskActions.classList.add('task-actions');
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    listItem.remove();
+                    saveTasks();
+                });
+
+                taskActions.appendChild(deleteBtn);
+                listItem.appendChild(taskSpan);
+                listItem.appendChild(taskActions);
+                taskList.appendChild(listItem);
+            });
+        }
+
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                tasks.push({
+                    text: item.querySelector('.task-text').textContent,
+                    completed: item.classList.contains('completed')
+                });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Call loadTasks on page load
+        window.addEventListener('load', loadTasks);
+        */
+    </script>
+</body>
+</html>
